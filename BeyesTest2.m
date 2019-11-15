@@ -1,5 +1,6 @@
 %% 贝叶斯推断测试
 %本程序用于测试贝叶斯推断函数
+%关键是考虑地图的统一
 clear
 load pos.mat
 %此处用pos1做本船，pos2做目标船，当前为第21s
@@ -25,7 +26,7 @@ WayPointTO = WayPoint( TS,OS,1500 );
 %    OtherTrack: n*2数组，他船轨迹(n>=2)
 %                此处用pos1做本船，pos2做目标船，前100s轨迹做预测
 
-OtherTrack=pos2(1:50,:)*100;
+OtherTrack=pos2(1:10:50*10,:);
 %    likelihood: 2*2数组,likelihood(1,1)本船猜测他船从本船船头经过的似然度
 %                        likelihood(1,2)本船猜测他船从本船船尾经过的似然度
 %                        likelihood(2,1)本船猜测他船，猜测本船从他船船头经过的似然度
@@ -40,7 +41,7 @@ likelihood=[0.3, 0.7; 0.7, 0.3];
 pointOfPass=[WayPointTO(1:2)
     WayPointTO(3:4)] ;
 
-[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);
+[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);    %注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
 [m,n]=size(X);
 map=zeros(m,n);
 IntentionMap0=zeros(m,n);
@@ -83,16 +84,16 @@ for t=1:1
         PrTheta(i+1, :) = PrTheta(i+1, :)./sum(PrTheta(i+1, :)); %归一化
     end
     
-    for i=1:N
-        Bpos1 = OtherTrack(n-1, :);
+    for i=1:1:N      %开始蒙特卡洛仿真
+        Bpos1 = OtherTrack(n-1, :); %当前时刻和上一个时刻的位置，用于进行贝叶斯推断，这两个时刻的间距决定了步长
         Bpos2 = OtherTrack(n, :);
         for j=1:k
             PrX = zeros(1, 3);
             tempX = zeros(3, 2);
             tempP = zeros(3, m);
             tempArrow = Bpos2 - Bpos1;
-            tempSpeed = sqrt(sum(tempArrow.^2));
-            tempAlpha = atan2d(tempArrow(2), tempArrow(1));
+            tempSpeed = sqrt(sum(tempArrow.^2));  %当前的速度／步长，即两个位置之间的实际距离
+            tempAlpha = atan2d(tempArrow(2), tempArrow(1));   %当前的航向角
             tempX(1, :) = Bpos2 + tempSpeed * [cosd(tempAlpha), sind(tempAlpha)];   %当前位置不变方向
             tempX(2, :) = Bpos2 + tempSpeed * [cosd(tempAlpha+45), sind(tempAlpha+45)];   %+45度
             tempX(3, :) = Bpos2 + tempSpeed * [cosd(tempAlpha-45), sind(tempAlpha-45)];   %-45度
@@ -119,7 +120,8 @@ for t=1:1
             end
             Bpos1 = Bpos2;
             Bpos2 = tempX(jj, :);
-            point = floor(Bpos2);
+            point0= Bpos2;
+            point = ceil(Bpos2);    %ceil是向上取整数，使用floor是向下取整数，有可能取到0，而map里没有0
             map(point(2), point(1)) = map(point(2), point(1)) + 1;
         end
     end
@@ -130,8 +132,7 @@ for t=1:1
     TS.pos(2)=col(1);
     WayPointTO = WayPoint( TS,OS,1500 );
     pointOfPass=[WayPointTO(1:2);WayPointTO(3:4)] ;
-    IntentionMap=IntentionMap+IntentionMap0;
-    
+    IntentionMap=IntentionMap+IntentionMap0;   
 end
 v=find(IntentionMap~=0);%返回B中非零元素
 [row,col]=find(IntentionMap~=0);%返回矩阵B中非零元素对应的行和列
