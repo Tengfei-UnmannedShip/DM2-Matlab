@@ -174,10 +174,14 @@ colormap(colorpan);%∂®“Â…´≈Ã
 colorbar
 set(ss, 'LineStyle','none');
 hold on
-plot(ppos1(1),ppos1(2),'or')
+plot(pos2(40,1),pos2(40,2),'or')
 hold on
-plot(ppos2(1),ppos2(2),'ob')
+plot(pos2(50,1),pos2(50,2),'ob')
 hold on
 plot(0,0,'*')
+hold on
+xpos=pos2(1:400,1);
+ypos=pos2(1:400,2);
+plot(xpos,ypos,'LineWidth',1);
 
 
