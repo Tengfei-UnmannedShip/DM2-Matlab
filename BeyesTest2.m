@@ -18,22 +18,26 @@ OS.Course=c1(51,:);
 TS.pos=pos2(51,:);
 TS.Course=c1(51,:);
 
-[X,Y]=meshgrid(0:0.01:6,0:0.01:6);      % Pnew = (Pold - Pref)*scale,这里Pref是（0,0），所以起始位置只能是（0,0）,15 Nov 2019, by WS
-                                        % 注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
+
+% [X,Y]=meshgrid(0:0.01:6,0:0.01:6);      % Pnew = (Pold - Pref)*scale,这里Pref是（0,0），所以起始位置只能是（0,0）,15 Nov 2019, by WS
+[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);  % 注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
 [m0,n0]=size(X);
 map=zeros(m0,n0);
 IntentionMap0=zeros(m0,n0);
 IntentionMap=zeros(m0,n0);
 
-WayPointOT = floor(WayPoint(OS,TS,1500)*100); %由于地图是-10:0.01:10,所以，每一个海里为单位的要放大100倍取整数来归入某一个格子
-WayPointTO = floor(WayPoint(TS,OS,1500)*100);
+WayPointOT0 = WayPoint(OS,TS,1500);
+WayPointTO0 = WayPoint(TS,OS,1500);
+
+WayPointOT = floor((WayPointOT0+10*ones(size(WayPointOT0)))*100); %由于地图是-10:0.01:10,所以，每一个海里为单位的要放大100倍取整数来归入某一个格子
+WayPointTO = floor((WayPointTO0+10*ones(size(WayPointTO0)))*100);
 % BAYESIANINTENTIONPRED 用于船舶意图预测
 % 参考论文：Bayesian Intention Inference for Trajectory Prediction with an Unknown Goal Destination
 % inputs：
 %    OtherTrack: n*2数组，他船轨迹(n>=2)
 %                此处用pos1做本船，pos2做目标船，前100s轨迹做预测
 OtherTrack0=pos2(1:50,:);
-OtherTrack=floor(OtherTrack0*100);
+OtherTrack=floor((OtherTrack0+10*ones(size(OtherTrack0)))*100); 
 %    likelihood: 2*2数组,likelihood(1,1)本船猜测他船从本船船头经过的似然度
 %                        likelihood(1,2)本船猜测他船从本船船尾经过的似然度
 %                        likelihood(2,1)本船猜测他船，猜测本船从他船船头经过的似然度
@@ -44,10 +48,8 @@ likelihood=[0.3, 0.7; 0.7, 0.3];
 %    pointOfPass: 2*2数组，pointOfPass(1,:)本船猜测他船从本船船头经过的点
 %                          pointOfPass(2,:)本船猜测他船从本船船尾经过的点
 
-
 pointOfPass=[WayPointTO(1:2)
     WayPointTO(3:4)] ;
-
 
 %     IntentionMap0=BayesianIntentionPred(OtherTrack, pointOfPass, likelihood, map);
 %% 贝叶斯推断
@@ -185,6 +187,6 @@ xpos=pos2(1:400,1);
 ypos=pos2(1:400,2);
 plot(xpos,ypos,'LineWidth',1);
 axis equal          % 坐标轴等比例,15 Nov 2019, by WS
-axis([2, 5, 0, 5])  % 限制显示范围,15 Nov 2019, by WS
+% axis([2, 5, 0, 5])  % 限制显示范围,15 Nov 2019, by WS
 
 
