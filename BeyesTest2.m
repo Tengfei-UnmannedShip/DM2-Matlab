@@ -18,15 +18,21 @@ OS.Course=c1(51,:);
 TS.pos=pos2(51,:);
 TS.Course=c1(51,:);
 
-WayPointOT = WayPoint( OS,TS,1500 );
-WayPointTO = WayPoint( TS,OS,1500 );
+[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);    %注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
+[m,n]=size(X);
+map=zeros(m,n);
+IntentionMap0=zeros(m,n);
+IntentionMap=zeros(m,n);
+
+WayPointOT = floor(WayPoint(OS,TS,1500)*100); %由于地图是-10:0.01:10,所以，每一个海里为单位的要放大100倍取整数来归入某一个格子
+WayPointTO = floor(WayPoint(TS,OS,1500)*100);
 % BAYESIANINTENTIONPRED 用于船舶意图预测
 % 参考论文：Bayesian Intention Inference for Trajectory Prediction with an Unknown Goal Destination
 % inputs：
 %    OtherTrack: n*2数组，他船轨迹(n>=2)
 %                此处用pos1做本船，pos2做目标船，前100s轨迹做预测
 
-OtherTrack=pos2(1:10:50*10,:);
+OtherTrack=floor(pos2(1:50,:)*100);
 %    likelihood: 2*2数组,likelihood(1,1)本船猜测他船从本船船头经过的似然度
 %                        likelihood(1,2)本船猜测他船从本船船尾经过的似然度
 %                        likelihood(2,1)本船猜测他船，猜测本船从他船船头经过的似然度
@@ -39,13 +45,8 @@ likelihood=[0.3, 0.7; 0.7, 0.3];
 
 
 pointOfPass=[WayPointTO(1:2)
-    WayPointTO(3:4)] ;
+             WayPointTO(3:4)] ;
 
-[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);    %注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
-[m,n]=size(X);
-map=zeros(m,n);
-IntentionMap0=zeros(m,n);
-IntentionMap=zeros(m,n);
 for t=1:1  
     %     IntentionMap0=BayesianIntentionPred(OtherTrack, pointOfPass, likelihood, map);
     %% 贝叶斯推断
@@ -121,7 +122,7 @@ for t=1:1
             Bpos1 = Bpos2;
             Bpos2 = tempX(jj, :);
             point0= Bpos2;
-            point = ceil(Bpos2);    %ceil是向上取整数，使用floor是向下取整数，有可能取到0，而map里没有0
+            point = floor(Bpos2);    
             map(point(2), point(1)) = map(point(2), point(1)) + 1;
         end
     end
@@ -137,10 +138,23 @@ end
 v=find(IntentionMap~=0);%返回B中非零元素
 [row,col]=find(IntentionMap~=0);%返回矩阵B中非零元素对应的行和列
 
+IntentionMap1=IntentionMap/10;
+
+
 figure
-mesh(X,Y,IntentionMap);
+mesh(X,Y,IntentionMap1);
 % axis on;
 axis equal;
 xlabel('\it n miles', 'Fontname', 'Times New Roman');
 ylabel('\it n miles', 'Fontname', 'Times New Roman');
+
+figure
+colormap([0 0 0;1 1 1])
+imagesc(IntentionMap1)
+
+% MAPAstar=pcolor(X,Y,IntentionMap1);  %来自pcolor的官方示例
+% MAPAstar.FaceColor = 'interp';
+% colormap(gray(2))
+% axis square
+
 
