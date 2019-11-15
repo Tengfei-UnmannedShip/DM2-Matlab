@@ -18,7 +18,8 @@ OS.Course=c1(51,:);
 TS.pos=pos2(51,:);
 TS.Course=c1(51,:);
 
-[X,Y]=meshgrid(-10:0.01:10,-10:0.01:10);    %注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
+[X,Y]=meshgrid(0:0.01:6,0:0.01:6);      % Pnew = (Pold - Pref)*scale,这里Pref是（0,0），所以起始位置只能是（0,0）,15 Nov 2019, by WS
+                                        % 注意地图的尺寸，每一个格子是0.01海里见方的，因此需要对下面格子的检索进行新的安排，并且思考如何用到函数中
 [m0,n0]=size(X);
 map=zeros(m0,n0);
 IntentionMap0=zeros(m0,n0);
@@ -183,5 +184,7 @@ hold on
 xpos=pos2(1:400,1);
 ypos=pos2(1:400,2);
 plot(xpos,ypos,'LineWidth',1);
+axis equal          % 坐标轴等比例,15 Nov 2019, by WS
+axis([2, 5, 0, 5])  % 限制显示范围,15 Nov 2019, by WS
 
 
