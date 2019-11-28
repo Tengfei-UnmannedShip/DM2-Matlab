@@ -1,143 +1,93 @@
-%% 用于绘图上的各种测试，主要是imagesc函数和pcolor函数
-% 测试内容：
-% 1.色盘设置
-% 2.坐标轴方向设置
-% 3.pcolor网格线设置
-%基本数据
-clear
+% close all
+%% 绘图程序：show ships' positions at every moment
 
-map=zeros(100,100);
-map0=zeros(100,100);
-map1=zeros(100,100);
-for i=1:1:50
+figure
+ha = MarginEdit(3,2,[.05  0.05],[.05  0.05],[0.05  0.05],1);
+for fig=1:6
     
-    map0(i,2*i)=1*i*i;
-    map1(i,i)=5*i;
-    map=map0+map1;
-    
-end
-
-% 定义色盘矩阵
-% 关于颜色设置
-% 颜色	RGB 三元组
-% 黄色	[1 1 0]
-% 品红色  [1 0 1]
-% 青蓝色  [0 1 1]
-% 红色    [1 0 0]
-% 绿色	[0 1 0]
-% 蓝色	[0 0 1]
-% 白色	[1 1 1]
-% 黑色	[0 0 0]
-
-
-colorpan=[1 1 1]; %一切为0时，显示白色
-% 设置1，从白到蓝（[1 1 1]~[0 0 1]）
-% for k=1:1:100
-%     colorpan=[colorpan;1-0.01*k 1-0.01*k 1];
-% end
-
-% % 设置1.5，从白到青蓝到蓝到深蓝
-% % 白：位置1，颜色[1 1 1]
-% % 青蓝：位置30，颜色[0 1 1]
-% % 蓝：位置80，颜色[0 0 1]
-% % 深蓝：位置101，颜色[20/255 43/255 140/255](RGB=[20 43 140])
-% for k=1:1:99
-%     if k<30
-%         colorpan=[colorpan;1-(k/29),1,1];
-%     elseif k>=30 && k<80
-%         colorpan=[colorpan;0,1-((k-29)/(79-29)),1];
-%     else
-%         colorpan=[colorpan;(20/255)*((k-79)/(100-79)),(43/255)*((k-79)/(100-79)),1-(140/255)*((k-79)/(100-79))];
-%     end
-% end
-
-% % 设置2，由标准色jet修改而来从白到蓝到黄到红（[1 1 1]～[0 0 1]～[1 1 0]～[1 0 0])
-% % 白：位置1，颜色[1 1 1]
-% % 青蓝：位置20，颜色[0 1 1]
-% % 黄：位置60，颜色[1 1 0]
-% % 红：位置90，颜色[1 0 0]
-% % 深红：位置100，颜色[132/255 0 0](RGB=[132 0 0])
-% for k=1:1:99
-%     if k<20
-%         colorpan=[colorpan;1-(k/19),1,1];
-%     elseif k>=20 && k<60
-%         colorpan=[colorpan;(k-19)/(59-19),1,1-((k-19)/(59-19))];
-%     elseif k>=60 && k<90
-%         colorpan=[colorpan;1,1-((k-59)/(89-59)),0];
-%     else
-%         colorpan=[colorpan;1-(132/255)*((k-89)/(100-89)),0,0];
-%     end
-% end
-
-
-% 设置3，由标准色jet修改而来从白到浅蓝到蓝到青蓝到黄到红到深红
-% 白：位置1，颜色[1 1 1]
-% 浅蓝：位置15，颜色[173/255 235/255 1](RGB=[173 235 255])
-% 蓝：位置40，颜色[0 0 1]
-% 青蓝：位置55，颜色[0 1 1]
-% 黄：位置70，颜色[1 1 0]
-% 红：位置90，颜色[1 0 0]
-% 深红：位置100，颜色[132/255 0 0](RGB=[132 0 0])
-for k=1:1:99
-    if k<15
-        colorpan=[colorpan;1-((255-173)/255)*(k/14),1-((255-235)/255)*(k/14),1];  % 浅蓝：位置15，颜色[173/255 235/255 1](RGB=[173 235 255])
-    elseif k>=15 && k<40
-        colorpan=[colorpan;173/255*(1-(k-14)/(39-14)),235/255*(1-(k-14)/(39-14)),1]; % 蓝：位置40，颜色[0 0 1]
-    elseif k>=40 && k<55
-        colorpan=[colorpan;0,(k-39)/(54-39),1]; % 青蓝：位置55，颜色[0 1 1]
-    elseif k>=55 && k<70
-        colorpan=[colorpan;(k-54)/(69-54),1,1-((k-54)/(69-54))]; % 黄：位置70，颜色[1 1 0]
-    elseif k>=70 && k<90
-        colorpan=[colorpan;1,1-((k-69)/(89-69)),0]; % 红：位置90，颜色[1 0 0]
-    else
-        colorpan=[colorpan;1-(132/255)*((k-89)/(100-89)),0,0]; % 深红：位置100，颜色[132/255 0 0](RGB=[132 0 0])
+    switch fig
+        case 1
+            k=1;
+        case 2
+            k=500;
+        case 3
+            k=1000;
+        case 4
+            k=1500;
+        case 5
+            k=2000;
+        case 6
+            k=2500;
     end
+    
+%     subplot(3,2,fig);
+%     hold on;
+    axes(ha(fig)); 
+    %WTF:画出船舶的初始位置
+    drawShip0(pos1(1,:),c1(1),1,400);
+    drawShip0(pos2(1,:),c2(1),2,400);
+    drawShip0(pos3(1,:),c3(1),3,400);
+    drawShip0(pos4(1,:),c4(1),4,400);
+    
+    %WTF:画出船舶的结束位置
+    drawShip(pos1(k,:),c1(k),1,400);
+    drawShip(pos2(k,:),c2(k),2,400);
+    drawShip(pos3(k,:),c3(k),3,400);
+    drawShip(pos4(k,:),c4(k),4,400);
+    
+    %WTF:画出过往的航迹图
+    plot(pos1(1:k,1),pos1(1:k,2),'r-');
+    plot(pos2(1:k,1),pos2(1:k,2),'g-');
+    plot(pos3(1:k,1),pos3(1:k,2),'b-');
+    plot(pos4(1:k,1),pos4(1:k,2),'k-');
+    
+    %WTF:画出船头的圆用于表示安全范围
+    circle(pos1(k,:),900/1852,1);
+    circle(pos2(k,:),900/1852,2);
+    circle(pos3(k,:),900/1852,3);
+    circle(pos4(k,:),900/1852,4);
+    
+    
+    grid on;
+    axis on
+    xlabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+    ylabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+    title(['t=',num2str(k),'s'], 'Fontname', 'Times New Roman','FontSize',15);
+    box on;
 end
+% print('-djpeg', '-r300', 'figure1');
 
-
-
-% % 最原始的imagesc和pcolor
-% figure
-% subplot(1,2,1)
-% imagesc(map)
-% subplot(1,2,2)
-% pcolor(map)
-%
-% %原始的imagesc和色盘设置
-% figure
-% imagesc(map)
-% colormap(colorpan);%定义色盘
-% colorbar
-% hold on
-% plot(20,20,'o','color','red');
-%
-
-%
-% %原始pcolor和色盘设置
-% figure
-% pcolor(map);  %来自pcolor的官方示例
-% colormap(colorpan);%定义色盘
-% colorbar
-% hold on
-% plot(20,20,'o','color','red');
-
-%不显示网格线的pcolor
 figure
-s=pcolor(map);  %来自pcolor的官方示例
-colormap(colorpan);%定义色盘
-colorbar
-set(s, 'LineStyle','none');
-% hold on
-% plot(20,20,'o','color','red');
+ha = MarginEdit(1,1,[.05  0.05],[.05  0.05],[0.05  0.05],1);
+axes(ha(1)); 
+k=1500;
+%WTF:画出船舶的初始位置
+drawShip1(pos1(1,:),c1(1),1,200,1.5);
+drawShip1(pos2(1,:),c2(1),2,200,1.5);
+drawShip1(pos3(1,:),c3(1),3,200,1.5);
+drawShip1(pos4(1,:),c4(1),4,200,1.5);
+%WTF:画出船舶的结束位置
+drawShip1(pos1(k,:),c1(k),1,200,1.5);
+drawShip1(pos2(k,:),c2(k),2,200,1.5);
+drawShip1(pos3(k,:),c3(k),3,200,1.5);
+drawShip1(pos4(k,:),c4(k),4,200,1.5);
 
-%imagesc坐标轴方向设置
-% 设置方法
-% gcf 返回当前Figure 对象的句柄值
-% gca 返回当前axes 对象的句柄值
-figure
-imagesc(map)
-colormap(colorpan);%定义色盘
-colorbar
-set(gca,'YDir','normal')
-hold on
-plot(20,20,'o','color','red');
+%WTF:画出过往的航迹图
+plot(pos1(1:k,1),pos1(1:k,2),'r-','LineWidth',2);
+plot(pos2(1:k,1),pos2(1:k,2),'g-','LineWidth',2);
+plot(pos3(1:k,1),pos3(1:k,2),'b-','LineWidth',2);
+plot(pos4(1:k,1),pos4(1:k,2),'k-','LineWidth',2);
+
+%WTF:画出船头的圆用于表示安全范围
+circle2(pos1(k,:),600/1852,1,2);
+circle2(pos2(k,:),600/1852,2,2);
+circle2(pos3(k,:),600/1852,3,2);
+circle2(pos4(k,:),600/1852,4,2);
+grid on;
+box on;
+set(gca,'LineWidth',1.5)
+% xlabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+% ylabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+% title(['t=',num2str(k),'s'], 'Fontname', 'Times New Roman','FontSize',15);
+% print('-djpeg', '-r300', 'figure2');
+

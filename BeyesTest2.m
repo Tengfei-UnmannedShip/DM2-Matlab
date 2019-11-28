@@ -1,4 +1,5 @@
-%% 贝叶斯推断测试
+%% 贝叶斯推断测试，针对单船的测试成功
+
 %本程序用于测试贝叶斯推断函数
 %关键是考虑地图的统一
 clear
@@ -167,9 +168,9 @@ for k=1:1:99
         colorpan=[colorpan;1-(132/255)*((k-89)/(100-89)),0,0]; % 深红：位置100，颜色[132/255 0 0](RGB=[132 0 0])
     end
 end
-
-ppos1 = OtherTrack0(n-1, :); %当前时刻和上一个时刻的位置，用于进行贝叶斯推断，这两个时刻的间距决定了步长
-ppos2 = OtherTrack0(n, :);
+% 
+% ppos1 = OtherTrack0(n-1, :); %当前时刻和上一个时刻的位置，用于进行贝叶斯推断，这两个时刻的间距决定了步长
+% ppos2 = OtherTrack0(n, :);
 %不显示网格线的pcolor
 figure
 ss=pcolor(X,Y,IntentionMap1);  %来自pcolor的官方示例

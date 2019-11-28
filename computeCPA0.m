@@ -1,12 +1,12 @@
-function CPA = computeCPA(OSspeed,OSCourse,OSpos,TSspeed,TSCourse,TSpos,time)
+function CPA = computeCPA0(OS,TS,time)
 %% 基本的CPA计算但是多了一个航向时间，用于Jinfen的算法中计算每一阶段的CPA
 %将本船和目标船的速度由(速度值+航行角)的极坐标形式转化为(Vx,Vy)的直角坐标形式
-v_own=OSspeed;
-course_own=OSCourse;
-pos_own=OSpos;
-v_target=TSspeed;
-course_target=TSCourse;
-pos_target=TSpos;
+v_own=OS.speed;
+course_own=OS.Course;
+pos_own=OS.pos;
+v_target=TS.speed;
+course_target=TS.Course;
+pos_target=TS.pos;
 
 V_x1 = v_own*sind(course_own);%WTF:sind是以角度为自变量的sin值，sin是以弧度为单位的，deg2rad将角度转换为弧度
 V_y1 = v_own*cosd(course_own);
