@@ -1,4 +1,4 @@
-function [ ColorPan ] = ColorPanSet( setNO )
+function [ colorpan ] = ColorPanSet( setNO )
 %关于绘图配色的设置
 % 定义色盘矩阵
 % 关于颜色设置
@@ -147,9 +147,7 @@ switch setNO
                 colorpan=[colorpan;1-(132/255)*((k-89)/(100-89)),0,0]; % 深红：位置100，颜色[132/255 0 0](RGB=[132 0 0])
             end
         end
-        
-        
-        
+
 end
 end
 

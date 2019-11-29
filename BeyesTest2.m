@@ -44,7 +44,7 @@ OtherTrack=floor((OtherTrack0+10*ones(size(OtherTrack0)))*100);
 %                        likelihood(2,1)本船猜测他船，猜测本船从他船船头经过的似然度
 %                        likelihood(2,2)本船猜测他船，猜测本船从他船船尾经过的似然度
 %                likelihood为对称矩阵，例如[0.3, 0.7; 0.7, 0.3]
-likelihood=[0.3, 0.7; 0.7, 0.3];
+likelihood=[0.95, 0.05; 0.05, 0.95];
 
 %    pointOfPass: 2*2数组，pointOfPass(1,:)本船猜测他船从本船船头经过的点
 %                          pointOfPass(2,:)本船猜测他船从本船船尾经过的点
@@ -131,17 +131,17 @@ for i=1:1:N      %开始蒙特卡洛仿真
     end
 end
 IntentionMap0=map;
+% 
+% [row,col]=find(IntentionMap0~=0);%返回矩阵B中非零元素对应的行和列
+% TS.pos(1)=row(1);
+% TS.pos(2)=col(1);
+% WayPointTO = WayPoint( TS,OS,1500 );
+% pointOfPass=[WayPointTO(1:2);WayPointTO(3:4)] ;
+% IntentionMap=IntentionMap+IntentionMap0;
+% v=find(IntentionMap~=0);%返回B中非零元素
+% [row,col]=find(IntentionMap~=0);%返回矩阵B中非零元素对应的行和列
 
-[row,col]=find(IntentionMap0~=0);%返回矩阵B中非零元素对应的行和列
-TS.pos(1)=row(1);
-TS.pos(2)=col(1);
-WayPointTO = WayPoint( TS,OS,1500 );
-pointOfPass=[WayPointTO(1:2);WayPointTO(3:4)] ;
-IntentionMap=IntentionMap+IntentionMap0;
-v=find(IntentionMap~=0);%返回B中非零元素
-[row,col]=find(IntentionMap~=0);%返回矩阵B中非零元素对应的行和列
-
-IntentionMap1=IntentionMap/1;
+IntentionMap1=IntentionMap0;
 
 
 colorpan=[1,1,1]; %设置色盘一切为0时，显示白色

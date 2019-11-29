@@ -1,12 +1,27 @@
 function CPA = computeCPA0(OS,TS,time)
 %% 基本的CPA计算但是多了一个航向时间，用于Jinfen的算法中计算每一阶段的CPA
 %将本船和目标船的速度由(速度值+航行角)的极坐标形式转化为(Vx,Vy)的直角坐标形式
+CPA=[];
+for i=1:1:length(TS)
+    if length(OS.pos)>1
+        OS.pos=OS.pos(end,:);
+    end
+    if length(OS.Course)>1
+        OS.Course=OS.Course(end,:);
+    end
+    if length(TS(i).pos)>1
+        TS(i).pos=TS(i).pos(end,:);
+    end
+    if length(TS(i).Course)>1
+        TS(i).Course=TS(i).Course(end,:);
+    end
+
 v_own=OS.speed;
 course_own=OS.Course;
 pos_own=OS.pos;
-v_target=TS.speed;
-course_target=TS.Course;
-pos_target=TS.pos;
+v_target=TS(i).speed;
+course_target=TS(i).Course;
+pos_target=TS(i).pos;
 
 V_x1 = v_own*sind(course_own);%WTF:sind是以角度为自变量的sin值，sin是以弧度为单位的，deg2rad将角度转换为弧度
 V_y1 = v_own*cosd(course_own);
@@ -39,5 +54,6 @@ pos1=[pos_own(1)+v_own*sind(course_own)*t, pos_own(2)+v_own*cosd(course_own)*t];
 pos2=[pos_target(1)+v_target*sind(course_target)*t, pos_target(2)+v_target*cosd(course_target)*t];
 
 dist=norm(pos1-pos2,2);%WTF:norm求向量的范数，即(x1^2+x2^2+x3^2)^(1/2)，即此处的求距离的方程
-CPA = [pos1,pos2,dist,t]; %函数输出:最近会遇点处OS坐标pos1，TS坐标pos2，DCPA和TCPA
+CPA = [CPA;pos1,pos2,dist,t]; %函数输出:最近会遇点处OS坐标pos1，TS坐标pos2，DCPA和TCPA
+end
 end
