@@ -1,9 +1,10 @@
-function  WayPoint = WayPoint( OS,TS,time )
+function  WayPoint = WayPoint( OS,TS)
 %% 一对一的路径点计算
 % OS眼中每一个TS相对于它的目标路径点，输出为船头+船尾
 % 基本的CPA计算但是多了一个航向时间，用于Jinfen的算法中计算每一阶段的CPA
 % 将本船和目标船的速度由(速度值+航行角)的极坐标形式转化为(Vx,Vy)的直角坐标形式
 WayPoint=[];
+time=1000;
 for i=1:1:length(TS)
     course_target=TS(i).Course;
     TSlength=TS(i).length;

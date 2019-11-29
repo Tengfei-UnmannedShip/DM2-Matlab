@@ -21,7 +21,7 @@ CAL=[2 0 0 1
 [m0,n0]=size(X);
 
 
-for figNO=3:1:8
+for figNO=4:1:5
     if figNO>1
         time=300*(figNO-1); %选取时刻分别为50，300*(figNO-1)
     else
@@ -47,18 +47,15 @@ for figNO=3:1:8
     TS(1).Course=c2(1:time+1,:);
     TS(2).Course=c3(1:time+1,:);
     TS(3).Course=c4(1:time+1,:);
-    %没有碰撞风险时，即DCPA大于某数之后，预测将不准确，此时也不用预测
-    for TSi=1:1:3
-        if CollisionRisk0(OS,TS(TSi)) %无风险为0，有风险为1，即有风险时才执行
-            %有风险，执行预测
-            TS(TSi).Infer=1;
-        else
-            TS(TSi).Infer=0;
-        end
-    end
+    
     for TSi=1:1:3
         %       for TSi=3:3
-        if TS(TSi).Infer  %执行预测的话
+        CPA_temp = computeCPA0(OS,TS(TSi),1500);
+        CPA(figNO).ship(TSi,:)=CPA_temp;
+        if CollisionRisk0(OS,TS(TSi),1852) %无风险为0，有风险为1，即有风险时才执行
+            TS(TSi).infer=1; %即开始预测
+            disp(['当前本船与目标船',num2str(TSi)+1,'有碰撞风险，DCPA=',num2str(CPA_temp(1,5)),'，TCPA= ',num2str(CPA_temp(1,6))]);
+            %有风险，执行预测
             
             map=zeros(m0,n0);
             IntentionMap0=zeros(m0,n0);
@@ -72,8 +69,8 @@ for figNO=3:1:8
             TS_waypoint.speed=TS(TSi).speed;
             TS_waypoint.length=TS(TSi).length;
             
-            WayPointOT0 = WayPoint(OS_waypoint,TS_waypoint,1500);
-            WayPointTO0 = WayPoint(TS_waypoint,OS_waypoint,1500);
+            WayPointOT0 = WayPoint(OS_waypoint,TS_waypoint);
+            WayPointTO0 = WayPoint(TS_waypoint,OS_waypoint);
             
             WayPointOT = floor((WayPointOT0+10*ones(size(WayPointOT0)))*100); %由于地图是-10:0.01:10,所以，每一个海里为单位的要放大100倍取整数来归入某一个格子
             WayPointTO = floor((WayPointTO0+10*ones(size(WayPointTO0)))*100);
@@ -90,15 +87,14 @@ for figNO=3:1:8
             %                        likelihood(2,1)本船猜测他船，猜测本船从他船船头经过的似然度
             %                        likelihood(2,2)本船猜测他船，猜测本船从他船船尾经过的似然度
             %                likelihood为对称矩阵，例如[0.3, 0.7; 0.7, 0.3]
-            likelihood=[0.3, 0.7;
-                0.7, 0.3];
+            disp(['目标船',num2str(TSi)+1,',CAL=',num2str(CAL(1,TSi+1))]);
             if CAL(1,TSi+1)==1
-                likelihood=[0.05, 0.95;
-                    0.95, 0.05];
-            else
-                likelihood=[0.95, 0.05;
-                    0.05, 0.95];
+                likelihood=[0.05, 0.95;0.95, 0.05];
+                
+            else 
+                likelihood=[0.95, 0.05;0.05, 0.95];
             end
+
             %    pointOfPass: 2*2数组，pointOfPass(1,:)本船猜测他船从本船船头经过的点
             %                          pointOfPass(2,:)本船猜测他船从本船船尾经过的点
             
@@ -201,13 +197,13 @@ for figNO=3:1:8
             end
             IntentionMap0=map;
             IntentionMap=IntentionMap0;
-            TopValue=FindValue(IntentionMap,5);
-            IntentionMap(IntentionMap>TopValue)=TopValue;
-        else %不执行预测的话，直接为0
-            IntentionMap=zeros(m0,n0);
+        else  %没有碰撞风险时，即DCPA大于某数之后，预测将不准确，此时也不用预测
+            TS(TSi).infer=0; %即不预测
+            IntentionMap=zeros(m0,n0);%不执行预测的话，直接为0
+            disp(['当前本船与目标船',num2str(TSi)+1,'无碰撞风险，DCPA=',num2str(CPA_temp(1,5)),'，TCPA= ',num2str(CPA_temp(1,6))]);
         end
         %存储数据
-        TotalMap(figNO).OSinfer(:,:,TSi)=IntentionMap;
+        %         TotalMap(figNO).OSinfer(:,:,TSi)=IntentionMap;
         if TSi==1
             IntentionMap2=IntentionMap;
         elseif TSi==2
@@ -215,7 +211,7 @@ for figNO=3:1:8
         elseif TSi==3
             IntentionMap4=IntentionMap;
         end
-
+        
     end
     
     TotalMap(figNO).Ship2=IntentionMap2;
@@ -228,45 +224,71 @@ for figNO=3:1:8
     
     %% 绘图测试
     figure
-    OSInferMap01=TotalMap(figNO).Ship2;
-    OSInferMap11=OSInferMap01;
-    
-    OSInferMap02=TotalMap(figNO).Ship3;
-    OSInferMap12=OSInferMap02;
-    
-    OSInferMap03=TotalMap(figNO).Ship4;
-    OSInferMap13=OSInferMap03;
-    OSInferMap=OSInferMap01+OSInferMap02+OSInferMap03;
-    
-    ss=pcolor(X,Y,OSInferMap);  %来自pcolor的官方示例
-    set(ss, 'LineStyle','none');
-    colorpan=ColorPanSet(6);
-    colormap(colorpan);%定义色盘
-    hold on
-    
-    %WTF:画出船舶的初始位置
-    drawShip0(pos1(1,:),c1(1),1,400);
-    drawShip0(pos2(1,:),c2(1),2,400);
-    drawShip0(pos3(1,:),c3(1),3,400);
-    drawShip0(pos4(1,:),c4(1),4,400);
-    
-    %WTF:画出船舶的结束位置
-    drawShip(pos1(time,:),c1(k),1,400);
-    drawShip(pos2(time,:),c2(k),2,400);
-    drawShip(pos3(time,:),c3(k),3,400);
-    drawShip(pos4(time,:),c4(k),4,400);
-    
-    %WTF:画出过往的航迹图
-    plot(pos1(1:time,1),pos1(1:time,2),'r-');
-    plot(pos2(1:time,1),pos2(1:time,2),'g-');
-    plot(pos3(1:time,1),pos3(1:time,2),'b-');
-    plot(pos4(1:time,1),pos4(1:time,2),'k-');
-    
-    axis equal
-    xlabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
-    ylabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
-    title(['t=',num2str(time),'s'], 'Fontname', 'Times New Roman','FontSize',15);
-    box on;
+    if TS(1).infer ==0 && TS(2).infer ==0 && TS(3).infer ==0
+        
+        %WTF:画出船舶的初始位置
+        drawShip0(pos1(1,:),c1(1),1,400);
+        drawShip0(pos2(1,:),c2(1),2,400);
+        drawShip0(pos3(1,:),c3(1),3,400);
+        drawShip0(pos4(1,:),c4(1),4,400);
+        
+        %WTF:画出船舶的结束位置
+        drawShip(pos1(time,:),c1(time,:),1,400);
+        drawShip(pos2(time,:),c2(time,:),2,400);
+        drawShip(pos3(time,:),c3(time,:),3,400);
+        drawShip(pos4(time,:),c4(time,:),4,400);
+        
+        %WTF:画出过往的航迹图
+        plot(pos1(1:time,1),pos1(1:time,2),'r-');
+        plot(pos2(1:time,1),pos2(1:time,2),'g-');
+        plot(pos3(1:time,1),pos3(1:time,2),'b-');
+        plot(pos4(1:time,1),pos4(1:time,2),'k-');
+        
+        axis equal
+        xlabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+        ylabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+        title(['t=',num2str(time),'s'], 'Fontname', 'Times New Roman','FontSize',15);
+        box on;
+        
+    else
+        OSInferMap01=TotalMap(figNO).Ship2;
+        OSInferMap02=TotalMap(figNO).Ship3;
+        OSInferMap03=TotalMap(figNO).Ship4;
+        OSInferMap=OSInferMap01+OSInferMap02+OSInferMap03;
+        %         TopValue=FindValue(OSInferMap,10);
+        TopValue=80;
+        OSInferMap(OSInferMap>TopValue)=TopValue;
+        
+        ss=pcolor(X,Y,OSInferMap);  %来自pcolor的官方示例
+        set(ss, 'LineStyle','none');
+        colorpan=ColorPanSet(6);
+        colormap(colorpan);%定义色盘
+        hold on
+        
+        %WTF:画出船舶的初始位置
+        drawShip0(pos1(1,:),c1(1),1,400);
+        drawShip0(pos2(1,:),c2(1),2,400);
+        drawShip0(pos3(1,:),c3(1),3,400);
+        drawShip0(pos4(1,:),c4(1),4,400);
+        
+        %WTF:画出船舶的结束位置
+        drawShip(pos1(time,:),c1(time,:),1,400);
+        drawShip(pos2(time,:),c2(time,:),2,400);
+        drawShip(pos3(time,:),c3(time,:),3,400);
+        drawShip(pos4(time,:),c4(time,:),4,400);
+        
+        %WTF:画出过往的航迹图
+        plot(pos1(1:time,1),pos1(1:time,2),'r-');
+        plot(pos2(1:time,1),pos2(1:time,2),'g-');
+        plot(pos3(1:time,1),pos3(1:time,2),'b-');
+        plot(pos4(1:time,1),pos4(1:time,2),'k-');
+        
+        axis equal
+        xlabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+        ylabel('\it n miles', 'Fontname', 'Times New Roman','FontSize',15);
+        title(['t=',num2str(time),'s'], 'Fontname', 'Times New Roman','FontSize',15);
+        box on;
+    end
 end
 
 

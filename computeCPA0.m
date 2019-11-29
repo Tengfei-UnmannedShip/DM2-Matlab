@@ -3,25 +3,13 @@ function CPA = computeCPA0(OS,TS,time)
 %将本船和目标船的速度由(速度值+航行角)的极坐标形式转化为(Vx,Vy)的直角坐标形式
 CPA=[];
 for i=1:1:length(TS)
-    if length(OS.pos)>1
-        OS.pos=OS.pos(end,:);
-    end
-    if length(OS.Course)>1
-        OS.Course=OS.Course(end,:);
-    end
-    if length(TS(i).pos)>1
-        TS(i).pos=TS(i).pos(end,:);
-    end
-    if length(TS(i).Course)>1
-        TS(i).Course=TS(i).Course(end,:);
-    end
 
-v_own=OS.speed;
-course_own=OS.Course;
-pos_own=OS.pos;
-v_target=TS(i).speed;
-course_target=TS(i).Course;
-pos_target=TS(i).pos;
+v_own=OS.speed(end,:);
+course_own=OS.Course(end,:);
+pos_own=OS.pos(end,:);
+v_target=TS(i).speed(end,:);
+course_target=TS(i).Course(end,:);
+pos_target=TS(i).pos(end,:);
 
 V_x1 = v_own*sind(course_own);%WTF:sind是以角度为自变量的sin值，sin是以弧度为单位的，deg2rad将角度转换为弧度
 V_y1 = v_own*cosd(course_own);
