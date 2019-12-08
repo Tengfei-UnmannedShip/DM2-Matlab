@@ -21,7 +21,7 @@ CAL=[2 0 0 1
 [m0,n0]=size(X);
 
 
-for figNO=4:1:5
+for figNO=1:1:4
     if figNO>1
         time=300*(figNO-1); %选取时刻分别为50，300*(figNO-1)
     else
@@ -47,9 +47,16 @@ for figNO=4:1:5
     TS(1).Course=c2(1:time+1,:);
     TS(2).Course=c3(1:time+1,:);
     TS(3).Course=c4(1:time+1,:);
-    
-    for TSi=1:1:3
+    TS(1).infer=0; %即开始预测
+    TS(2).infer=0; %即开始预测
+    TS(3).infer=0; %即开始预测
+    for TSi=3:1:3
         %       for TSi=3:3
+        
+        IntentionMap2=zeros(m0,n0);
+        IntentionMap3=zeros(m0,n0);
+        IntentionMap4=zeros(m0,n0);
+        
         CPA_temp = computeCPA0(OS,TS(TSi),1500);
         CPA(figNO).ship(TSi,:)=CPA_temp;
         if CollisionRisk0(OS,TS(TSi),1852) %无风险为0，有风险为1，即有风险时才执行
@@ -91,10 +98,10 @@ for figNO=4:1:5
             if CAL(1,TSi+1)==1
                 likelihood=[0.05, 0.95;0.95, 0.05];
                 
-            else 
+            else
                 likelihood=[0.95, 0.05;0.05, 0.95];
             end
-
+            
             %    pointOfPass: 2*2数组，pointOfPass(1,:)本船猜测他船从本船船头经过的点
             %                          pointOfPass(2,:)本船猜测他船从本船船尾经过的点
             
@@ -181,8 +188,8 @@ for figNO=4:1:5
                             PrX(jj) = PrX(jj)+tempP(jj, ii)*PrTheta(n, ii);
                         end
                     end
-                    select = rand();
-                    upper = [PrX(1), PrX(1)+PrX(2), 1];
+                    select = rand();                     %轮盘法的蒙特卡洛分析
+                    upper = [PrX(1), PrX(1)+PrX(2), 1];  %不转向，右转，左转
                     for jj=1:3
                         if select < upper(jj)
                             break;
@@ -256,7 +263,7 @@ for figNO=4:1:5
         OSInferMap03=TotalMap(figNO).Ship4;
         OSInferMap=OSInferMap01+OSInferMap02+OSInferMap03;
         %         TopValue=FindValue(OSInferMap,10);
-        TopValue=80;
+        TopValue=60;
         OSInferMap(OSInferMap>TopValue)=TopValue;
         
         ss=pcolor(X,Y,OSInferMap);  %来自pcolor的官方示例
@@ -290,10 +297,3 @@ for figNO=4:1:5
         box on;
     end
 end
-
-
-
-
-
-
-

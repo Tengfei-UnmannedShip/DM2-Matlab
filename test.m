@@ -1,4 +1,9 @@
-a=floor(rand(5,5)*20)
-b = FindValue( a,1 )
-c=FindValue( a,3 )
-d=FindValue( a,5 )
+    clear
+    
+    boatsize = [ 250, 31
+    250, 32
+    250, 33
+    250, 34
+    ];
+a=boatsize(1,:)
+b=boatsize(2:end,:)
