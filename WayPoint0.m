@@ -4,17 +4,17 @@ function  WayPoint = WayPoint0( OS,TS,time )
 % 将本船和目标船的速度由(速度值+航行角)的极坐标形式转化为(Vx,Vy)的直角坐标形式
 WayPoint=[];
 for i=1:1:length(TS)
-    course_target=TS(i).Course;
+    course_target=TS(i).Course(end,:);
     TSlength=TS(i).length;
     
     CPA = computeCPA0( OS,TS(i),time);
     PosTS=CPA(1,3:4);
     x0=PosTS(1);
     y0=PosTS(2);
-    x1=2*TSlength*sind(course_target)+x0;       %船头目标点x坐标，船头2倍船长处
-    y1=2*TSlength*cosd(course_target)+y0;       %船头目标点y坐标，船头2倍船长处
-    x2=x0-1.5*TSlength*sind(course_target);     %船尾目标点x坐标，船尾1.5倍船长处
-    y2=y0-1.5*TSlength*cosd(course_target);     %船尾目标点y坐标，船尾1.5倍船长处
+    x1=2.5*TSlength*sind(course_target)+x0;       %船头目标点x坐标，船头2倍船长处。(x0,y0)只是位置点，默认在船中间，因此还要加上半个船长才是船头
+    y1=2.5*TSlength*cosd(course_target)+y0;       %船头目标点y坐标，船头2倍船长处
+    x2=x0-2*TSlength*sind(course_target);     %船尾目标点x坐标，船尾1.5倍船长处
+    y2=y0-2*TSlength*cosd(course_target);     %船尾目标点y坐标，船尾1.5倍船长处
     
     WayPoint=[WayPoint;
               x1 y1 x2 y2];

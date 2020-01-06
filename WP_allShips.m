@@ -1,8 +1,13 @@
-function [x,n,data]=WP_allShips(pos,waypoint)
+function x=WP_allShips(pos,waypoint)
 % 一种典型的拟牛顿法broyden计算非线性方程组的解
 % 程序参考《MATLAB数值分析与应用_宋叶志》
 % 实验 6.5 拟牛顿法（Broyden 方法）（全书第248页）
 % 输入
+% % 位置信息pos，用于计算到各路径点的加权平均值: 
+% % 本船位置
+% OS_pos=pos(1,:);
+% % 其他目标船位置
+% TS_pos=pos(2:end,:);
 % x0 为迭代初值
 x0=[0,0];
 % tol 为误差容限，如果缺省默认为10的-10次方

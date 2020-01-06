@@ -1,4 +1,4 @@
-function  APF  = DrawAPF( OS, TS, map, draw )
+function  APFmap= DrawAPF( OS, TS, map, draw )
 %人工势场底图绘制函数，来自旧的人工势场程序
 
 %% 地图设置
@@ -21,14 +21,14 @@ Boat_eta=1;
 Boat_alfa=0.1;
 BoatCut=0;
 RiskFieldValue=zeros(m,n);%wtf--Z=RiskFieldValue，即每一点的势场值。此处先将其归零为一个与X相同大小的0矩阵
-APFValue=zeros(m,n);
+APFmap=zeros(m,n);
 
 for i=1:1:length(TS)
     %航标参数初始化
-    Boat_x(i)=TS(i).pos(1);                   %第i个船x坐标
-    Boat_y(i)=TS(i).pos(2);                   %第i个船y坐标
-    Boat_theta(i)=-TS(i).Course/180*pi;       %第i个船艏向角度
-    Boat_Speed(i)=TS(i).speed;                %第i个船速度大小
+    Boat_x(i)=TS(i).pos(end,1);                   %第i个船x坐标
+    Boat_y(i)=TS(i).pos(end,2);                   %第i个船y坐标
+    Boat_theta(i)=-TS(i).Course(end,:)/180*pi;       %第i个船艏向角度
+    Boat_Speed(i)=TS(i).speed(end,:);                %第i个船速度大小
     Boat_length(i)=TS(i).length;              %第i个船长
     Boat_width(i)=TS(i).width;                %第i个船宽
     %局部坐标系转换，把计算势场点坐标（X,Y）变换到船舶坐标系下点（BoatX{i},BoatY{i}）
@@ -56,24 +56,24 @@ for i=1:1:length(TS)
     %这里每个点在不同船下的场之间暂采用简单加和
     RiskFieldValue=RiskFieldValue+BoatRiskField{i};
 end
-
-APFValue=RiskFieldValue;
-newfield=RiskFieldValue/BoatRiskFieldPeakValue;
-APF.X=APF_X;
-APF.Y=APF_Y;
-APF.map0=APFValue;
-APF.map1=newfield;
+APFmap=RiskFieldValue;
+% APFValue=RiskFieldValue;
+% newfield=RiskFieldValue/BoatRiskFieldPeakValue;
+% APF.X=APF_X;
+% APF.Y=APF_Y;
+% APF.map0=APFValue;
+% APF.map1=newfield;
 
 %% 绘图程序，如果每一次都绘图的话，会太多，只在一些时刻画图，控制函数为draw
 if draw==1  %确认绘图
     figure;
-    mesh(APF_X,APF_Y,APFValue);
+    mesh(APF_X,APF_Y,APFmap);
     hold on;
     plot(goal(1,1),goal(1,2),'ro','MarkerFaceColor','r');
     axis equal;
     axis off;
     figure
-    contourf(APF_X,APF_Y,APFValue,'LevelStep',30);  %带填充颜色的等高线图
+    contourf(APF_X,APF_Y,APFmap,'LevelStep',30);  %带填充颜色的等高线图
     hold on;
     plot(goal(1,1),goal(1,2),'ro','MarkerFaceColor','r');
     hold on;
