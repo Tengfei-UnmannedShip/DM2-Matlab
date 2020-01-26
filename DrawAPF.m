@@ -1,14 +1,14 @@
-function  APFmap= DrawAPF( OS, TS, map, draw )
+function  APFmap= DrawAPF( OS, TS, map,Re,draw )
 %人工势场底图绘制函数，来自旧的人工势场程序
 
 %% 地图设置
-% map=[x1,x2,y1,y2],表示4个边界，单位海里
+% map=[x,y],表示对称的4个边界，单位海里
 x1=-map(1)*1852;
 x2=map(1)*1852;
 y1=-map(2)*1852;
 y2=map(2)*1852;
-
-[APF_X,APF_Y]=meshgrid(x1:10:x2,y1:10:y2);
+%Re,Resolution，地图的分辨率
+[APF_X,APF_Y]=meshgrid(x1:Re:x2,y1:Re:y2);
 [m,n]=size(APF_X);
 %% ==================================================
 % 目标船舶参数设置
