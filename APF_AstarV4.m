@@ -1,7 +1,7 @@
 %% 最终测试（试验步骤1，步骤2）
-% 测试第1步：找准WP
-% 测试第2步：绘制单船从SP到WP的路径。
-% 要求：1.结果输出每一步的路线；
+% 测试第1步: 找准WP
+% 测试第2步: 绘制单船从SP到WP的路径。
+% 要求: 1.结果输出每一步的路线；
 %      2.路径尽量自然
 %      3.计算效率与计算精度的调试；
 
@@ -41,9 +41,9 @@ t1=0;
 tt=2000;
 for j=1:1:ShipNum
     
-    ship(j).speeds = boat(j,3)/3600;%WTF：将航速转换为海里／秒
+    ship(j).speed_Ns = boat(j,3)/3600;%WTF：将航速转换为海里／秒
     ship(j).speed = boat(j,3);%WTF：原航速，用于ship domain
-    ship(j).speed1 = boat(j,3)*1852/3600;%WTF：原航速，用于ship domain
+    ship(j).speed_ms = boat(j,3)*1852/3600;%WTF：原航速，用于ship domain
     ship(j).ratio=1;             %有速度改变时改变比例
     ship(j).initialCourse = boat(j,4);
     ship(j).compliance= shipLabel(j,1); %compliance是对避碰规则的符合性，0：直线前进不避让，1：遵守，2：不遵守，反着来
@@ -59,7 +59,7 @@ for j=1:1:ShipNum
     ship(j).Vratio=1;
     ship(j).courseAlter = 0; %初始状态的航向角该变量为0
     ship(j).Course = ship(j).initialCourse+ship(j).courseAlter;
-    ship(j).Start_pos=[boat(j,1)-ship(j).speeds*sind(ship(j).initialCourse)*0.5*tMax, boat(j,2)-ship(j).speeds*cosd(ship(j).initialCourse)*0.5*tMax];
+    ship(j).Start_pos=[boat(j,1)-ship(j).speed_Ns*sind(ship(j).initialCourse)*0.5*tMax, boat(j,2)-ship(j).speed_Ns*cosd(ship(j).initialCourse)*0.5*tMax];
     ship(j).pos=ship(j).Start_pos*1852;
     ship(j).DCPA_Record = [];
     ship(j).TCPA_Record = [];
@@ -83,12 +83,13 @@ CAL=[2 0 0 1
 Re=100; %栅格化的分辨率
 %% 每个时刻的决策
 %绘制当前时刻的APF地图，把四艘船的一次全算出来，之后每次使用都叠加，这样可以少算8艘船的
+%APF的地图，是实际地图的栅格化，不是栅格地图
 for i=1:1:ShipNum
     
     APF(i).map= DrawAPF(ship(i),ship(i),APFmapSize,Re,0);
     
 end
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % APF绘图%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % APFvalue=APF(i).map;
 % for i=2:1:length(APF)
 %     APFvalue=APFvalue+APF(i).map;
@@ -158,16 +159,17 @@ for i=1:1:1
     background=ship(i).APF;
     map=ship(i).APF;
     
-    start_row=round((ship(i).pos(1)+MapSize(1)*1852)/100);%APF地图分辨率是100米，因此除以100
-    start_col=round((ship(i).pos(2)+MapSize(2)*1852)/100);
+    start_row=round((ship(i).pos(1)+MapSize(1)*1852)/Re);%APF地图分辨率是100米，因此除以100
+    start_col=round((ship(i).pos(2)+MapSize(2)*1852)/Re);
     
-    end_row=round((ship(i).goalPiont0(1)+MapSize(1)*1852)/100);
-    end_col=round((ship(i).goalPiont0(2)+MapSize(2)*1852)/100);
+    end_row=round((ship(i).goalPiont0(1)+MapSize(1)*1852)/Re);
+    end_col=round((ship(i).goalPiont0(2)+MapSize(2)*1852)/Re);
     OSLength=ship(i).length;
     speed=ship(i).speed;
     Course=ship(i).Course;
     dire=20; % direction跳整方向数，n向的A*
     %     Data=AStar2(ship(i).APF,start_row,start_col,end_row,end_col,speed,OSLength,Course,dire,0);
+    Node_opti=1;
     background=map;
     
     start_point.row=start_row;
@@ -333,10 +335,12 @@ toc
 disp(['本次运行时间: ',num2str(toc)]);
 
 %把每个位置占的格子回归到点，以中间点代替
+a0=(MapSize(1)-(-MapSize(1)))*1852/Re;
+b0=(MapSize(2)-(-MapSize(2)))*1852/Re;
 for i=1:1:1
     for j=1:1:length(ship(i).posData)
-        ship(i).pos(j+1,1)=(ship(i).posData(j,1)-0.5)*Re+(-MapSize(1)*1852);
-        ship(i).pos(j+1,2)=(ship(i).posData(j,2)-0.5)*Re+(-MapSize(2)*1852);
+        ship(i).pos(j+1,1)=(ship(i).posData(j,1)*a0+0.5*a0)/1852-MapSize(1); %x轴从栅格坐标回归正常坐标
+        ship(i).pos(j+1,2)=(ship(i).posData(j,2)*b0+0.5*b0)/1852-MapSize(2); %y轴从栅格坐标回归正常坐标
     end
 end
 %WTF:画出船舶的初始位置

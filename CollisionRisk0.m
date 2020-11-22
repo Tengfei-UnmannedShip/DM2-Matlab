@@ -8,7 +8,7 @@ time=2500;
 %%
 for i=1:length(ship2)
     
-    CAP_temp= computeCPA0(ship1,ship2(i),time);
+    CAP_temp=computeCPA0(ship1,ship2(i),time);
     DCPA_temp=CAP_temp(1,5);
     TCPA_temp=CAP_temp(1,6);
     if DCPA_temp<=d_thre && TCPA_temp>0
